@@ -63,9 +63,10 @@ counter=1
 for node in ${nodes[@]}
 do
   canConnect=0
+  ip=`grep "$node" $baseIP/hosts | awk '{print $1}'`
   echo "[*] Try to connect to $node"
   while [ $canConnect != 1 ]; do
-    nc -z $node 22 && ( canConnect=1 && break )|| ( canConnect=0 && printf "." )
+    nc -z $ip 22 && ( canConnect=1 && break )|| ( canConnect=0 && printf "." )
     if [ $counter == "60" ]; then
       printf "[=>] $node doesn't come back yet, Do u want to retry connect to it other 1 min [y/n]: "
       read answer
@@ -84,6 +85,5 @@ do
   if [ $canConnect == "0" ]; then
     break
   fi
-  ip=`grep "$node" $baseIP/hosts | awk '{print $1}'`
   sshpass -p$installerPasswd ssh -o StrictHostKeyChecking=no root@$ip 'cd /root/tools && bash Install "'$enviromentName'"'
 done
