@@ -4,46 +4,46 @@ baseIP="/opt/g8-pxeboot/pxeboot/conf"
 
 #check if base files exist
 function check {
-  [ -f "$baseIP/hosts" ] || ( echo [-] "can't find $baseIP/hosts file" && exit )
-  [ -f "$baseIP/dhcphosts" ] || ( echo [-] "can't find $baseIP/dhcphosts file" && exit )
-  [ -f "$baseTFTP/911boot" ] || ( echo [-] "can't find $baseTFTP/911boot file" && exit )
+  [ -f "$baseIP/hosts" ] || { echo [-] "can't find $baseIP/hosts file" && exit 1; }
+  [ -f "$baseIP/dhcphosts" ] || { echo [-] "can't find $baseIP/dhcphosts file" && exit 1; }
+  [ -f "$baseTFTP/911boot" ] || { echo [-] "can't find $baseTFTP/911boot file" && exit 1; }
 }
 
 function enable_pxe {
-  [ $# -qt 1 ] && echo "[-] This function take only one arg, NODE NAME" && exit
-  [ $1 ] && node=$1 || ( echo "[-] please enter target node" && exit )
+  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $1 ] && node=$1 || { echo "[-] please enter target node" && exit 4; }
   cd $baseIP
-  mac=`cat dhcphosts | awk 'BEGIN {FS=",";OFS=","}; {if ($2 == "'$node'" ) print $1}' | tr ":" "-"`
+  mac=01-`cat dhcphosts | awk 'BEGIN {FS=",";OFS=","}; {if ($2 == "'$node'" ) print $1}' | tr ":" "-"`
   cd $baseTFTP
-  [ -L $mac ] && echo "[*] Allready found link of $node" || ( ln -s 911boot $mac && echo "[+] Link created for $node" || (echo [Error] faild to create to $node && exit ))
+  [ -L $mac ] && echo "[*] Allready found link of $node" || ( ln -s 911boot $mac && echo "[+] Link created for $node" || { echo [Error] faild to create to $node && exit 5 })
 }
 
 #reboot_from_pxe cpu-01
 function reboot_from_pxe {
-  [ $# -qt 1 ] && echo "[-] This function take only one arg, NODE NAME" && exit
-  [ $1 ] && node="ipmi-"$1 || ( echo "[-] please enter target node" && exit )
+  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $1 ] && node="ipmi-"$1 || { echo "[-] please enter target node" && exit; }
   cd $baseIP && ip=`grep "\s$node" $baseIP/hosts | awk '{print $1}'`
   if [[ $node == *"cpu"* ]]
   then
-    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev pxe > /dev/null && echo "[*] Set $node to boot from pxe" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev pxe > /dev/null && echo "[*] Set $node to boot from pxe" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   elif [[ $node == *"stor"* ]]; then
-    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev pxe > /dev/null && echo "[*] Set $node to boot from pxe" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev pxe > /dev/null && echo "[*] Set $node to boot from pxe" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U admin -P admin chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   fi
 }
 
 #reboot_from_hd cpu-01
 function reboot_from_hd {
-  [ $# -qt 1 ] && echo "[-] This function take only one arg, NODE NAME" && exit
-  [ $1 ] && node="ipmi-"$1 || ( echo "[-] please enter target node" && exit )
+  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $1 ] && node="ipmi-"$1 || { echo "[-] please enter target node" && exit; }
   cd $baseIP && ip=`grep "\s$node" $baseIP/hosts | awk '{print $1}'`
   if [[ $node == *"cpu"* ]]
   then
-    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   elif [[ $node == *"stor"* ]]; then
-    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U admin -P admin chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   fi
 }
@@ -57,10 +57,10 @@ function reboot_node {
   cd $baseIP && ip=`grep "\s$node" $baseIP/hosts | awk '{print $1}'`
   if [[ $node == *"cpu"* ]]
   then
-    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev $boot > /dev/null && echo "[*] Set $node to boot from $boot" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev $boot > /dev/null && echo "[*] Set $node to boot from $boot" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   elif [[ $node == *"stor"* ]]; then
-    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev $boot > /dev/null && echo "[*] Set $node to boot from $boot" || (echo "[Error] faild to make $node boot from pxe" && break)
+    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev $boot > /dev/null && echo "[*] Set $node to boot from $boot" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U admin -P admin chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   fi
 }
@@ -74,7 +74,7 @@ function installer_node {
   counter=1
   echo "[*] Try to connect to $node"
   while [ $canConnect != 1 ]; do
-    nc -z $ip 22 && ( canConnect=1 && break )|| ( canConnect=0 && printf "." )
+    nc -z $ip 22 && { canConnect=1 && break; }|| { canConnect=0 && printf "."; }
     if [ $counter == "60" ]; then
       printf "[=>] $node doesn't come back yet, Do u want to retry connect to it other 1 min [y/n]: "
       read answer
