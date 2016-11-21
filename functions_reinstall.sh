@@ -20,8 +20,8 @@ function enable_pxe {
 
 #reboot_from_pxe cpu-01
 function reboot_from_pxe {
-  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
-  [ $1 ] && node="ipmi-"$1 || { echo "[-] please enter target node" && exit; }
+  [ $# -gt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $1 ] && node="ipmi"$1 || { echo "[-] please enter target node" && exit; }
   cd $baseIP && ip=`grep "\s$node" $baseIP/hosts | awk '{print $1}'`
   if [[ $node == *"cpu"* ]]
   then
@@ -31,21 +31,23 @@ function reboot_from_pxe {
     ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev pxe > /dev/null && echo "[*] Set $node to boot from pxe" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U admin -P admin chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   fi
+  sleep 2
 }
 
 #reboot_from_hd cpu-01
 function reboot_from_hd {
-  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
-  [ $1 ] && node="ipmi-"$1 || { echo "[-] please enter target node" && exit; }
+  [ $# -gt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $1 ] && node="ipmi"$1 || { echo "[-] please enter target node" && exit; }
   cd $baseIP && ip=`grep "\s$node" $baseIP/hosts | awk '{print $1}'`
   if [[ $node == *"cpu"* ]]
   then
-    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
+    ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis bootdev disk > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U ADMIN -P ADMIN chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   elif [[ $node == *"stor"* ]]; then
-    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev hard > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
+    ipmitool -I lanplus -H $ip -U admin -P admin chassis bootdev disk > /dev/null && echo "[*] Set $node to boot from hard disk" || { echo "[Error] faild to make $node boot from pxe" && break; }
     ipmitool -I lanplus -H $ip -U admin -P admin chassis power cycle > /dev/null && echo "[*] Restarting $node " || (echo "[Error] faild to power cycle $node")
   fi
+  sleep 2
 }
 
 #reboot_node cpu-01 pxe
@@ -93,3 +95,11 @@ function installer_node {
   fi
   sshpass -p$installerPasswd ssh -o StrictHostKeyChecking=no root@$ip 'cd /root/tools && bash Install "'$enviromentName'"'
 }
+
+
+for i in {01..04}
+do
+#enable_pxe cpu-$i
+#reboot_from_pxe cpu-$i
+reboot_from_hd cpu-$i
+done
