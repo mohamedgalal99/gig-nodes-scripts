@@ -10,12 +10,12 @@ function check {
 }
 
 function enable_pxe {
-  [ $# -qt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
+  [ $# -gt 1 ] && { echo "[-] This function take only one arg, NODE NAME" && exit; }
   [ $1 ] && node=$1 || { echo "[-] please enter target node" && exit 4; }
   cd $baseIP
   mac=01-`cat dhcphosts | awk 'BEGIN {FS=",";OFS=","}; {if ($2 == "'$node'" ) print $1}' | tr ":" "-"`
   cd $baseTFTP
-  [ -L $mac ] && echo "[*] Allready found link of $node" || ( ln -s 911boot $mac && echo "[+] Link created for $node" || { echo [Error] faild to create to $node && exit 5 })
+  [ -L $mac ] && echo "[*] Allready found link of $node" || ( ln -s 911boot $mac && echo "[+] Link created for $node" || { echo [Error] faild to create to $node && exit 5; })
 }
 
 #reboot_from_pxe cpu-01
