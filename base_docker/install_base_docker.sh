@@ -45,6 +45,7 @@ function remove_ovc_dockers ()
   if [[ $(${docpath} ps -a | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit") ]]
   then
     ovce_containers=$(docker ps | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit" | awk '{print $NF}')   #NF grep last column
+    #ovce_containers=$(${docpath} ps --format "{{.Names}}" | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit")  #other method to upper line
     echo "[*] Found ovce containers, ${ovce_containers}"
     echo "[*] Stopping containers"
     echo ${ovce_containers} | xargs -n 1 ${docpath} stop       #modify at first run
