@@ -15,13 +15,13 @@ then
     echo "[-] not same branch"
     cd /tmp
     rm -rf openvcloud
-    ssh-keyscan -H github.com >> $HOME/.ssh/known_hosts          #clone over ssh without check fingerprint 
+    ssh-keyscan -H github.com >> $HOME/.ssh/known_hosts          #clone over ssh without check fingerprint
     git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
   fi
 else
   git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
 fi
-[[ -f "/tmp/branch.sh" ]] && rm /tmp/branch.sh/tmp/branch.sh
+[[ -f "/tmp/branch.sh" ]] && rm /tmp/branch.sh
 touch /tmp/branch.sh
 echo -e "export JSBRANCH=${JS}\nexport AYSBRANCH=${AYS}\nexport OVCBRANCH=${OVC}" > /tmp/branch.sh
 [[ -f "/tmp/openvcloud/scripts/install/06-node-connect.sh" ]] || { echo "[-] Can't find 06 script"; exit 1; }
