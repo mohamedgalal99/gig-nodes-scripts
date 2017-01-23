@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run on Jumpscale docker
-# bash script.sh -j 7.1.6 -a 7.1.6 -o 2.1.6
+# bash jumpscale_docker.sh -j 7.1.6 -a 7.1.6 -o 2.1.6
 JS=
 AYS=
 OVC=
