@@ -15,6 +15,7 @@ then
     echo "[-] not same branch"
     cd /tmp
     rm -rf openvcloud
+    ssh-keyscan -H github.com >> $HOME/.ssh/known_hosts          #clone over ssh without check fingerprint 
     git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
   fi
 else
