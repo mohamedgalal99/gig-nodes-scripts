@@ -11,7 +11,7 @@ gw="192.168.24.1"
 start="192.168.27.100"
 end="192.168.27.200"
 netmask="255.255.248.0"
-gid="777"
+gid="666"
 ityoukey="Du62VVc0MTB6AxEOnjw5SUH2K4wXdXIauK4lze9dBzOi-FtYEXen"
 
 [[ ${#@} -gt 6 ]] && echo "[-] Alot of args provided" && exit 1

@@ -1,7 +1,10 @@
 #!/bin/bash
-#Running on controller
-
+# Running on controller
 docpath=
+JS="7.1.6"
+AYS="7.1.6"
+OVC="2.1.6"
+
 
 function check_docker ()
 {
@@ -36,7 +39,9 @@ function clean_repo ()
   [[ -d "env_${enviroment}" ]] && rm -rf "env_${enviroment}"
   git clone git@github.com:gig-projects/env_${enviroment}.git
   cd env_${enviroment}
-  git checkout -B "delete@$(date +%y%m%d)"
+  now=$(date +%y%m%d)
+  git checkout -B "delete@${now}"
+  git push --set-upstream origin delete@${now}
   git checkout master
   git reset --hard "$(git rev-list --max-parents=0 HEAD)"
   git push -f
@@ -70,7 +75,7 @@ function remove_image ()
   fi
 }
 
-function remove_images_openvcliud_none ()
+function remove_images_openvcloud_none ()
 {
   if [[ $(${docpath} images | grep -E '^openvcloud/') ]]
   then
@@ -99,21 +104,20 @@ function remove_ovc_dockers ()
   else
     echo "[*] No ovc containers found, environment is clean :)"
   fi
-  remove_images_openvcliud_none
+  remove_images_openvcloud_none
 }
 
 function jumpscale_docker ()
 {
+  [[ $(${docpath} ps | grep -E "jumpscale$") ]] && ${docpath} stop jumpscale    #be devil and delete it :D :D
   if [[ $(docker ps --format "{{.Names}}" | grep jumpscale) ]]
   then
     echo "[+] Jumpscale docker is installed and running"
     js_ip=$(docker_ip jumpscale)
     echo $js_ip
     echo '[+] Password for Jumpscale container'
-    ssh -A root@${js_ip} "
-     cd /tmp &&
-     wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker/jumpscale_docker.sh &&
-     bash jumpscale_docker.sh -j 7.1.6 -a 7.1.6 -o 2.1.6"          #change based on bransh want to install
+    comm="cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker/jumpscale_docker.sh && bash jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} && echo '[:)] Finished'"
+    ssh -A root@${js_ip} ${comm}
   else
     if [[ $(docker ps --format "{.Names}" | grep jumpscale) ]]; then
       echo "[+] found Jumpscale docker installed but stopped"
@@ -130,17 +134,36 @@ function jumpscale_docker ()
   fi
 }
 
-echo "************ check docker ****************"
-check_docker
-sleep 8
-echo "************ check_services **************"
-check_services
-sleep 8
-echo "************ remove_ovc_dockers **********"
-remove_ovc_dockers
-sleep 8
-echo "************ clean_repo du-conv-3 ********"
-clean_repo "du-conv-3"
-sleep 8
-echo "************ jumpscale_docker ************"
-jumpscale_docker
+fuction con ()
+{
+  comma=$1
+  messa=$2
+  echo -n "${messa} [y] : "
+  read ans
+  if [[ ${ans} == 'y' ]]
+  then
+    $comma
+  fi
+
+}
+
+[[ -d "/var/master_var" ]] && { echo "[+] Removing containt under /opt/master_var"; rm -rf /opt/master_var; }
+#echo "[*] Check Docker Installed"
+#check_docker
+con "check_docker" "[*] Check Docker Installed"
+
+#echo "[*] Check Services httpfs && docker listen on specific port"
+#check_services
+con "check_services" "[*] Check Services httpfs && docker listen on specific port"
+
+#echo "[*] Remove ovc_dockers ovcgit ovcproxy ovcmaster ovsreflector"
+#remove_ovc_dockers
+con "remove_ovc_dockers" "[*] Remove ovc_dockers ovcgit ovcproxy ovcmaster ovsreflector"
+
+#echo "[*] Clean github repo env_du-conv-3 "
+#clean_repo "du-conv-3"
+con "clean_repo du-conv-3" "[*] Clean github repo env_du-conv-3"
+
+#echo "[*] clean Jumpscale docker and install required packages on it"
+#jumpscale_docker
+con "jumpscale_docker" "[*] clean Jumpscale docker and install required packages on it"
