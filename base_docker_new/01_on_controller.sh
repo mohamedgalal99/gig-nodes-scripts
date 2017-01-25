@@ -1,6 +1,5 @@
 #!/bin/bash
 # Running on controller
-
 docpath=
 enviroment="du-conv-3"
 JS="7.1.6"
@@ -189,8 +188,8 @@ function git_docker ()
   [[ $(${docpath} ps --format "{{.Names}}" | grep "ovcgit") ]] && echo "[+] ovcgit docker is Running" || { echo "[-] ovcgit docker not running, some erorr happen"; exit 6; }
   git_ip=$(docker_ip ovcgit)
   echo "[*] Enter ovcgit docker ssh Password:"
-  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; wget https://github.com/mohamedgalal99/gig-reinstall-nodes/blob/master/base_docker/git-node.sh"
-  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && bash git_docker1.sh -o \"${OVC}\" -e \"${enviroment}\" -gw \"${gw}\" -s \"${start}\" -e \"${end}\" -n \"${netmask}\" -gid \"${gid}\" -iou \"${ityoukey}\""
+  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'git_node.sh' ]] && rm git-node.sh; wget https://github.com/mohamedgalal99/gig-reinstall-nodes/blob/master/base_docker_new/git-node.sh"
+  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'git_node.sh' ]] && bash git_node.sh -o \"${OVC}\" -e \"${enviroment}\" -gw \"${gw}\" -s \"${start}\" -e \"${end}\" -n \"${netmask}\" -gid \"${gid}\" -iou \"${ityoukey}\""
   echo "[+] git docker Function finished"
 }
 # exit code 7
@@ -203,7 +202,7 @@ function jumpscale_docker ()
     js_ip=$(docker_ip jumpscale)
     echo $js_ip
     echo '[+] Enter Password for Jumpscale container'
-    comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker/jumpscale_docker.sh && bash /tmp/jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} -c ${ctrl_ip}"
+    comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh && bash /tmp/jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} -c ${ctrl_ip}"
     ssh -A root@${js_ip} ${comm}
     sleep 8
     #con "git_docker" "[*] Installing ovcmaster, ovcproxy and configure them" ##Function git_docker ()
@@ -243,7 +242,7 @@ function nodes_to_git ()
     send_command_all_tmux "${pw}"
     send_command_all_tmux "cd /tmp ; [[ -f 'nodes_connect_git.sh' ]] && rm 'nodes_connect_git.sh'"
     sleep 5
-    send_command_all_tmux "cd /tmp; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker/nodes_connect_git.sh && { bash nodes_connect_git.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} && exit; }"
+    send_command_all_tmux "cd /tmp; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/nodes_connect_git.sh && { bash nodes_connect_git.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} && exit; }"
   else
     echo "[-] No node found in hosts file"
   fi
