@@ -82,8 +82,23 @@ do
       echo "[-] Don't recognize this ${n}"
     fi
   elif [[ ${option} == 2 ]]; then
-    #statements
-    echo "[*] will do this option later"
+    #echo "[*] will do this option later"
+    answer=
+    while [[ ${answer} != 1 ]] && [[ ${answer} != 2 ]]
+    do
+      echo -en "\n[*] IS this node ${n} is:\n\t1: Compute node\n\t2: Stor node\nYour chooise (1) or (2): "
+      read answer
+    done
+    if [[ ${answer} == 1 ]]
+    then
+      echo -e "[+] Install this node ${n} as Compute node\n"
+      echo "[*] Connecting ${n}"
+      jspython /tmp/openvcloud/scripts/install/07-ovcgit-cpunode-setup.py -n ${n} -v ${pubvlan} -g ${gridID} || echo "[-] Error in connect ${n} to master"
+    elif [[ ${answer} == 2 ]]
+    then
+      echo -e "[+] Install this node ${n} as Storge node\n"
+      echo "[*] Connecting ${n}"
+      jspython /tmp/openvcloud/scripts/install/07-ovcgit-storagenode-setup.py -n ${n} -g ${gridID} -t storagenode,storagedriver || echo "[-] Error in connect ${n} to master"
+    fi
   fi
 done
-
