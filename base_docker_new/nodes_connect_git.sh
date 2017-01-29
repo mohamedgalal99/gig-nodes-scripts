@@ -48,7 +48,8 @@ done
 
 [[ $(ssh-add -l) ]] && echo "[+] ssh key loaded" || { echo "[-] ssh key not loaded"; exit 1; }
 [[ -d /tmp ]] || { echo "[-] can't fine /tmp"; exit 1; }
-
+nc -zv ${enviroment}.demo.greenitglobe.com 5000 &> /dev/null
+[[ $? ]] || { echo "[-] can't connect to port 5000 ovcgit through ${enviroment}.demo.greenitglobe.com"; exit 1; }
 if [[ -d "/tmp/openvcloud" ]]
 then
   cd /tmp/openvcloud
