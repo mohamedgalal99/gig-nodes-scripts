@@ -4,7 +4,7 @@
 #ssh root@172.17.0.1 -p 2202 -A
 
 # bash git_node.sh -o 2.1.6 -e "du-conv-3" -gw "192.168.24.1" -s "192.168.27.100" -e "192.168.27.200" -n "255.255.248.0" -gid "666" -iou "Du62VVc0MTB6AxEOnjw5SUH2K4wXdXIauK4lze9dBzOi-FtYEXen"
-#bash git_node.sh -o "${OVC}" -e "${enviroment}" -gw "${gw}" -s "${start_ip}" -e "${end}" -n "${netmask}" -gid "${gid}" -iou "${ityoukey}"
+#bash git_node.sh -o "${OVC}" -e "${location}" -gw "${gw}" -s "${start_ip}" -e "${end}" -n "${netmask}" -gid "${gid}" -iou "${ityoukey}"
 
 OVC=
 gw=
@@ -13,11 +13,11 @@ end=
 netmask=
 gid=
 ityoukey=
-enviroment=
+location=
 
 [[ ${#@} -gt 16 ]] && echo "[-] Alot of args provided" && exit 1
 [[ ${#@} -lt 16 ]] && echo "[-] Missing args" && exit 1
-while [[ true ]]; do
+while [[ $1 ]]; do
   case $1 in
     -gw | --gateway )
     gw=$2
@@ -43,8 +43,8 @@ while [[ true ]]; do
     ityoukey=$2
     shift 2
       ;;
-    -e | --enviroment )
-    enviroment=$2
+    -l | --location )
+    location=$2
     shift 2
       ;;
     -o | --OVCBRANCH )
@@ -53,7 +53,7 @@ while [[ true ]]; do
       ;;
     -h | --help )
     echo "[options]"
-    echo "-e --enviroment \t\t enviroment name"
+    echo "-l --location \t\t location name"
     echo "-gid --gridId \t\t Enviroment grid Id"
     echo "-iou --itsyouonline \t\t itsyou.online deployment key"
     echo "-gw --gateway \t\t Enviroment gateway"
@@ -92,9 +92,10 @@ then
 else
   git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
 fi
-
-cd /opt/code/github/gig-projects/env_${enviroment}
+echo -e "\n${end}\n"
+echo "[=-=-=-=-=-=-=-=-=--] env_${location}" 
+cd /opt/code/github/gig-projects/env_${location}
 [[ -f "/tmp/openvcloud/scripts/install/03-ovcgit-master-spawn.py" ]] || { echo "[-] Can't find 03-ovcgit-master-spawn.py script"; exit 1; }
 jspython /tmp/openvcloud/scripts/install/03-ovcgit-master-spawn.py -R || { echo "[-] Error in running 03 spawn script"; exit 1; }
 [[ -f "/tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py" ]] || { echo "[-] Can't find 04-ovcgit-master-configure.py script"; exit 1; }
-jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey} || { sleep 10; jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey}; }
+jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${location} -cs ${ityoukey} || { sleep 10; jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${location} -cs ${ityoukey}; }
