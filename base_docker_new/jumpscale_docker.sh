@@ -81,5 +81,5 @@ sed -ie 's/^AYSBRANCH=.*/AYSBRANCH="'''${AYS}'''"/' "01-scratch-openvloud.sh"
 sed -ie 's/^OVCBRANCH=.*/OVCBRANCH="'''${OVC}'''"/' "01-scratch-openvloud.sh"
 bash 01-scratch-openvloud.sh
 sleep 10
-jspython 02-scratch-init.py --environment du-conv-3 --backend docker --port 2375 --remote 172.17.0.1 --public ${ctrl_ip}
+jspython 02-scratch-init.py --environment ${enviroment} --backend docker --port 2375 --remote 172.17.0.1 --public ${ctrl_ip}
 
