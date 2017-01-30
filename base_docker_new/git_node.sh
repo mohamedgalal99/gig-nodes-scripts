@@ -4,11 +4,11 @@
 #ssh root@172.17.0.1 -p 2202 -A
 
 # bash git_node.sh -o 2.1.6 -e "du-conv-3" -gw "192.168.24.1" -s "192.168.27.100" -e "192.168.27.200" -n "255.255.248.0" -gid "666" -iou "Du62VVc0MTB6AxEOnjw5SUH2K4wXdXIauK4lze9dBzOi-FtYEXen"
-#bash git_node.sh -o "${OVC}" -e "${enviroment}" -gw "${gw}" -s "${start}" -e "${end}" -n "${netmask}" -gid "${gid}" -iou "${ityoukey}"
+#bash git_node.sh -o "${OVC}" -e "${enviroment}" -gw "${gw}" -s "${start_ip}" -e "${end}" -n "${netmask}" -gid "${gid}" -iou "${ityoukey}"
 
 OVC=
 gw=
-start=
+start_ip=
 end=
 netmask=
 gid=
@@ -24,7 +24,7 @@ while [[ true ]]; do
     shift 2
       ;;
     -s | --start )
-    start=$2
+    start_ip=$2
     shift 2
       ;;
     -e | --end )
@@ -97,5 +97,4 @@ cd /opt/code/github/gig-projects/env_${enviroment}
 [[ -f "/tmp/openvcloud/scripts/install/03-ovcgit-master-spawn.py" ]] || { echo "[-] Can't find 03-ovcgit-master-spawn.py script"; exit 1; }
 jspython /tmp/openvcloud/scripts/install/03-ovcgit-master-spawn.py -R || { echo "[-] Error in running 03 spawn script"; exit 1; }
 [[ -f "/tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py" ]] || { echo "[-] Can't find 04-ovcgit-master-configure.py script"; exit 1; }
-jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey} || { sleep 10; jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey}; }
-
+jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey} || { sleep 10; jspython /tmp/openvcloud/scripts/install/04-ovcgit-master-configure.py -g ${gw} --start ${start_ip} --end ${end} --netmask ${netmask} --gid ${gid} --ssl wildcard -c greenitglobe.environments.${enviroment} -cs ${ityoukey}; }
