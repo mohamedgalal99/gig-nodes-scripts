@@ -92,7 +92,6 @@ then
 else
   git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
 fi
-echo -e "\n${end}\n"
 echo "[=-=-=-=-=-=-=-=-=--] env_${location}" 
 cd /opt/code/github/gig-projects/env_${location}
 [[ -f "/tmp/openvcloud/scripts/install/03-ovcgit-master-spawn.py" ]] || { echo "[-] Can't find 03-ovcgit-master-spawn.py script"; exit 1; }
