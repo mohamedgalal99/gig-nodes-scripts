@@ -1,18 +1,18 @@
 #!/bin/bash
 # Running on controller
 docpath=
-enviroment="du-conv-3"
+enviroment="be-g8-1"
 JS="7.1.6"
 AYS="7.1.6"
 OVC="2.1.6"
-ctrl_ip="192.168.27.0"
-gw="192.168.24.1"
-start="192.168.27.100"
-end="192.168.27.200"
-netmask="255.255.248.0"
-gid="666"
-pubvlan="2312"
-ityoukey="Du62VVc0MTB6AxEOnjw5SUH2K4wXdXIauK4lze9dBzOi-FtYEXen"
+ctrl_ip="10.101.106.254"
+gw="10.101.0.1"
+start_ip="10.101.106.10"
+end="10.101.106.200"
+netmask="255.255.0.0"
+gid="1002"
+pubvlan="101"
+ityoukey="liX186LBIQeUENGxF0Ur_hAPSq1-S1NgHfuIXyyZoSoVoJ25fXN7"
 
 [[ -f "/opt/g8-pxeboot/pxeboot/conf/hosts" ]] && echo "[*] Found hosts file" || { echo "[-] Can't find hosts file"; exit 1; }
 nodes=($(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev "^#|^$" | grep -E " cp[ua]-..$| stor-..$" | awk '{print $1}'))
@@ -31,7 +31,7 @@ function check_docker ()
     fi
 }
 
-fuction con ()
+function con ()
 {
   comma=$1
   messa=$2
@@ -48,7 +48,9 @@ function send_ssh_command ()
   [[ ${#@} != 2 ]] && { echo "[-] send_ssh_command function take only two args"; exit 1; }
   ip=$1
   comma=$2
-  ssh -A -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" ${ip} "${comma}"
+  echo $ip
+  echo $comma
+  ssh -A -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" root@${ip} "${comma}"
 }
 
 function start_httpfs ()
@@ -63,6 +65,23 @@ function start_httpfs ()
     tmux new-session -s "httpfs" -d "cd /opt/g8-pxeboot/pxeboot/images; ./httpfs 8080"
   fi
 }
+
+function send_command_all_tmux ()
+{
+  #[[ ${#@} -eq "1" ]] && { echo "[-] Function send command take only one arg :("; exit 1; }
+  comm=$1
+  for (( i = 0; i < ${#nodes[@]}; i++ )); do
+    nc -zv ${nodes[$i]} 22 &> /dev/null
+    if [[ $? ]]
+    then
+      echo "[*] Sending command to ${nodes_names[${i}]} ..."
+      tmux send-key -t connect_nodes_master:${nodes_names[${i}]} "${@}" ENTER
+    else
+      echo "[-] Can't ssh for ${nodes[${i}]} port 22 "
+    fi
+  done
+}
+
 function docker_config ()
 {
   [[ -f "/etc/systemd/system/docker.service" ]] || { echo "[-] can't find docker.services file"; exit 1; }
@@ -71,19 +90,18 @@ function docker_config ()
   containers=$(docker ps --format "{{.Names}}")
   echo "[+] Stopping Running dockers"
   echo ${containers} | xargs -n 1 docker stop
-  systemct restart docker.socket || { echo "[-] Can't restart docker socket"; exit 1; }
-  systemct restart docker.service || { echo "[-] Can't restart docker service"; exit 1}
+  systemctl restart docker.socket || { echo "[-] Can't restart docker socket"; exit 1; }
+  systemctl restart docker.service || { echo "[-] Can't restart docker service"; exit 1; }
   echo "[+] start stopped dockers"
   echo ${containers} | xargs -n 1 docker start
-  
-}
+} 
+
 function check_services ()
 {
   [[ $(ps aux |grep -E "httpfs 8080$") ]] && echo "[+] httpfs running on port 8080" || { echo "[-] httpfs not running"; start_httpfs; }
   [[ $(ps aux | grep "dockerd " | grep " tcp://0.0.0.0:2375 ") ]] && echo "[+] dockerd running and listen on port 2375" || { echo "[-] dockerd not running or listen on port 2375"; docker_config; }
   [[ $(ssh-add -l) ]] && echo "[+] SSH key loaded" || { echo "[-] SSH key not loaded"; exit 1; }
 }
-
 
 function clean_repo ()
 {
@@ -112,7 +130,7 @@ function docker_ip ()
   doc_name=${1}
   if [[ ${#@} -eq 1 ]]
   then
-    doc_ip=$(docker inspect ${doc_name} | grep IPAdd | grep -v -E 'null,$|"",$' | awk -F: '{print $2}' | sed -E 's/"|\ |,//g')
+    doc_ip=$(docker inspect ${doc_name} | grep IPAdd | grep -v -E 'null,$|"",$' | awk -F: '{print $2}' | sed -E 's/"|\ |,//g' | uniq)
     echo ${doc_ip}
   else
     echo "[Error] Function docker_ip get only 1 arg => docker name"
@@ -125,8 +143,9 @@ function remove_image ()
   img=$1
   if [[ $(${docpath} images | grep "${img}") ]]; then
     echo "[+] Deleteing ${img} image"
-    dockerID = $(${docpath} images | grep "${img}" | awk "{print $3}")
-    ${docpath} rmi -f ${dockerID}
+    ${docpath} images | grep "${img}" | awk "{print $3}" | xargs -n 1 ${docpath} rmi
+    #dockerID = $(${docpath} images | grep "${img}" | awk "{print $3}")
+    #${docpath} rmi -f ${dockerID}
   else
     echo "[-] image not found"
     return 1
@@ -147,7 +166,6 @@ function remove_images_openvcloud_none ()
   done
 }
 
-#exit code 
 function remove_ovc_dockers ()
 {
   if [[ $(${docpath} ps -a | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit") ]]
@@ -160,65 +178,78 @@ function remove_ovc_dockers ()
     echo "[*] Removing containers"
     echo ${ovce_containers} | xargs -n 1 ${docpath} rm -f      #modify at first run
     [[ $(docker ps | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit") ]] && { echo "[Error] Some containesr not deleted"; exit 6; }
+    docker ps -a --format '{{.Names}}'| grep -Ev 'pxeboot|jumpscale' | xargs -n 1 docker rm
   else
     echo "[*] No ovc containers found, environment is clean :)"
   fi
   remove_images_openvcloud_none
 }
 
-function send_command_all_tmux ()
-{
-  #[[ ${#@} -eq "1" ]] && { echo "[-] Function send command take only one arg :("; exit 1; }
-  comm=$1
-  for (( i = 0; i < ${#nodes[@]}; i++ )); do
-    nc -zv ${nodes[$i]} 22 &> /dev/null
-    if [[ $? ]]
-    then
-      echo "[*] Sending command to ${nodes_names[${i}]} ..."
-      tmux send-key -t connect_nodes_master:${nodes_names[${i}]} "${@}" ENTER
-    else
-      echo "[-] Can't ssh for ${nodes[${i}]} port 22 "
-    fi
-  done
-}
-
-# exit code 6
 function git_docker ()
 {
   [[ $(${docpath} ps --format "{{.Names}}" | grep "ovcgit") ]] && echo "[+] ovcgit docker is Running" || { echo "[-] ovcgit docker not running, some erorr happen"; exit 6; }
   git_ip=$(docker_ip ovcgit)
+  ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${git_ip}
+  ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${git_ip}
+  sleep 4
   echo "[*] Enter ovcgit docker ssh Password:"
-  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'git_node.sh' ]] && rm git-node.sh; wget https://github.com/mohamedgalal99/gig-reinstall-nodes/blob/master/base_docker_new/git-node.sh"
-  send_ssh_command "${git_ip}" "cd /tmp; [[ -f 'git_node.sh' ]] && bash git_node.sh -o \"${OVC}\" -e \"${enviroment}\" -gw \"${gw}\" -s \"${start}\" -e \"${end}\" -n \"${netmask}\" -gid \"${gid}\" -iou \"${ityoukey}\""
+  ssh-copy-id ${git_ip}
+  send_ssh_command "${git_ip}" "cd /tmp && [[ -f 'git_node.sh' ]] && rm git-node.sh; wget https://github.com/mohamedgalal99/gig-reinstall-nodes/blob/master/base_docker_new/git-node.sh"
+  send_ssh_command "${git_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/git_node.sh"
+  send_ssh_command "${git_ip}" "cd /tmp && /bin/bash git_node.sh -o \"${OVC}\" -l \"${enviroment}\" -gw \"${gw}\" -s \"${start_ip}\" -e \"${end}\" -n \"${netmask}\" -gid \"${gid}\" -iou \"${ityoukey}\""
   echo "[+] git docker Function finished"
 }
-# exit code 7
+
 function jumpscale_docker ()
 {
   #[[ $(${docpath} ps | grep -E "jumpscale$") ]] && ${docpath} stop jumpscale    #be devil and delete it :D :D
+  if [[ -d "/opt/master_var" ]]; then
+    echo "[+] Removing containt of /opt/master_var"
+    rm -rf /opt/master_var/*
+  else
+    echo '[+] creating /opt/master_var'
+    mkdir -p /opt/master_var
+    chown gig:gig /opt/master_var
+    chmod 775 /opt/master_var
+  fi
+
   if [[ $(docker ps --format "{{.Names}}" | grep "jumpscale") ]]
   then
     echo "[+] Jumpscale docker is installed and running"
     js_ip=$(docker_ip jumpscale)
-    echo $js_ip
+    echo ${js_ip}
     echo '[+] Enter Password for Jumpscale container'
-    comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh && bash /tmp/jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} -c ${ctrl_ip}"
-    ssh -A root@${js_ip} ${comm}
+    comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh;ls && sleep 3; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
+    #ssh -A root@${js_ip} ${comm}
+    #echo -e "Host 172.17.0.\n\tStrictHostKeyChecking no" > ~/.ssh/config
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${js_ip}
+    ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${js_ip}
+    ssh-copy-id root@"${js_ip}"
+    send_ssh_command "${js_ip}" "echo -e \"Host github.com\n\tStrictHostKeyChecking no\" > ~/.ssh/config"
+    send_ssh_command "${js_ip}" "cd /tmp && { [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; }"
+    send_ssh_command "${js_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
+    echo "[[ OoO ]] ${enviroment}"
+    send_ssh_command "${js_ip}" "cd /tmp && /bin/bash jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} -c ${ctrl_ip} "
     sleep 8
     #con "git_docker" "[*] Installing ovcmaster, ovcproxy and configure them" ##Function git_docker ()
+  elif [[ $(${docpath} ps -a --format "{{.Names}}" | grep "jumpscale") ]]
+  then
+    echo "[+] found Jumpscale docker installed but stopped"
+    echo "[+] removing Jumpscale docker "
+    ${docpath} rm -f "jumpscale" || { echo "[-] Faild to remove jumpscale docker"; exit 7; }
+    echo "[+] Remove jumpscale image"
+    remove_image "jumpscale/ubuntu1404"     ## function remove_image ()
+    echo "[+] Installing Jumpscale image"
+    ${docpath} pull "jumpscale/ubuntu1404" || { echo "[-] can't find jumpscale docker image"; exit 7; }
+    ${docpath} run -d --name="jumpscale" "jumpscale/ubuntu1404" || { echo "[-] can't start jumpscale container"; exit 7; }
+    sleep 5
+    jumpscale_docker
   else
-    if [[ $(${docpath} ps -a --format "{{.Names}}" | grep "jumpscale") ]]; then
-      echo "[+] found Jumpscale docker installed but stopped"
-      echo "[+] removing Jumpscale docker "
-      ${docpath} rm -f "jumpscale" || { echo "[-] Faild to remove jumpscale docker"; exit 7; }
-      echo "[+] Remove jumpscale image"
-      remove_image "jumpscale/ubuntu1404"     ## function remove_image ()
-      echo "[+] Installing Jumpscale image"
-      ${docpath} pull "jumpscale/ubuntu1404" || { echo "[-] can't find jumpscale docker image"; exit 7; }
-      ${docpath} run -d --name="jumpscale" "jumpscale/ubuntu1404" || { echo "[-] can't start jumpscale container"; exit 7; }
-      sleep 5
-      jumpscale_docker
-    fi
+    echo "[+] Installing Jumpscale image"
+    ${docpath} pull "jumpscale/ubuntu1404" || { echo "[-] can't find jumpscale docker image"; exit 7; }
+    ${docpath} run -d --name="jumpscale" "jumpscale/ubuntu1404" || { echo "[-] can't start jumpscale container"; exit 7; }
+    sleep 5
+    jumpscale_docker
   fi
 }
 
@@ -232,8 +263,8 @@ function nodes_to_git ()
     [[ "${#nodes[@]}" -ne "${#nodes_names[@]}" ]] && { echo "[-] Nodes and ips not same length."; exit 1; }
     [[ $(tmux ls | grep -E "^connect_nodes_master" | awk '{print $1}' | sed -e 's/:$//') ]] && tmux kill-session -t connect_nodes_master
     tmux new-session -s connect_nodes_master -d
-    for (( i = 0; i < ${#nodes[@]}; i++ )); do
-      #statements
+    for (( i = 0; i < ${#nodes[@]}; i++ ))
+    do
       tmux new-window -t connect_nodes_master -n ${nodes_names[${i}]} "ssh -A -o \"UserKnownHostsFile=/dev/null\" -o \"StrictHostKeyChecking=no\" root@${nodes[${i}]}"
       echo "[*] Connecting to ${nodes_names[${i}]} ... "
     done
@@ -254,8 +285,7 @@ function nodes_to_git ()
   echo -e "\n"      
 }
 
-
-[[ -d "/var/master_var" ]] && { echo "[+] Removing containt under /opt/master_var"; rm -rf /opt/master_var; }
+#[[ -d "/var/master_var" ]] && { echo "[+] Removing containt under /opt/master_var"; rm -rf /opt/master_var; }
 #echo "[*] Check Docker Installed"
 #check_docker
 con "check_docker" "[*] Check Docker Installed"
@@ -270,7 +300,7 @@ con "remove_ovc_dockers" "[*] Remove ovc_dockers ovcgit ovcproxy ovcmaster ovsre
 
 #echo "[*] Clean github repo env_du-conv-3 "
 #clean_repo "du-conv-3"
-con "clean_repo du-conv-3" "[*] Clean github repo env_du-conv-3"
+con "clean_repo ${enviroment}" "[*] Clean github repo ${enviroment}"
 
 #echo "[*] clean Jumpscale docker and install required packages on it"
 #jumpscale_docker
@@ -281,4 +311,4 @@ con "jumpscale_docker" "[*] clean Jumpscale docker and install required packages
 con "git_docker" "[*] Installing ovcmaster, ovcproxy and configure them" ##Function git_docker ()
 
 #login to all nodes to execute
-con "nodes_to_git" " [*] Connect nodes to ovcgit"
+#con "nodes_to_git" " [*] Connect nodes to ovcgit"
