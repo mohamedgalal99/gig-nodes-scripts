@@ -99,7 +99,7 @@ function docker_config ()
 function check_services ()
 {
   [[ $(ps aux |grep -E "httpfs 8080$") ]] && echo "[+] httpfs running on port 8080" || { echo "[-] httpfs not running"; start_httpfs; }
-  [[ $(ps aux | grep "dockerd " | grep " tcp://0.0.0.0:2375 ") ]] && echo "[+] dockerd running and listen on port 2375" || { echo "[-] dockerd not running or listen on port 2375"; docker_config; }
+  [[ $(ps aux | grep -E "docker.\S" | grep " tcp://0.0.0.0:2375 ") ]] && echo "[+] dockerd running and listen on port 2375" || { echo "[-] dockerd not running or listen on port 2375"; docker_config; }
   [[ $(ssh-add -l) ]] && echo "[+] SSH key loaded" || { echo "[-] SSH key not loaded"; exit 1; }
 }
 
