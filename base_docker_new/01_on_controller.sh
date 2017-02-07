@@ -193,7 +193,7 @@ function git_docker ()
   ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${git_ip}
   sleep 4
   echo "[*] Enter ovcgit docker ssh Password:"
-  ssh-copy-id ${git_ip}
+  ssh-copy-id root@${git_ip}
   send_ssh_command "${git_ip}" "cd /tmp && [[ -f 'git_node.sh' ]] && rm git-node.sh; wget https://github.com/mohamedgalal99/gig-reinstall-nodes/blob/master/base_docker_new/git-node.sh"
   send_ssh_command "${git_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/git_node.sh"
   send_ssh_command "${git_ip}" "cd /tmp && /bin/bash git_node.sh -o \"${OVC}\" -l \"${enviroment}\" -gw \"${gw}\" -s \"${start_ip}\" -e \"${end}\" -n \"${netmask}\" -gid \"${gid}\" -iou \"${ityoukey}\""
