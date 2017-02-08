@@ -178,7 +178,7 @@ function remove_ovc_dockers ()
     echo "[*] Removing containers"
     echo ${ovce_containers} | xargs -n 1 ${docpath} rm -f      #modify at first run
     [[ $(docker ps | egrep "ovcproxy|ovcreflector|ovcmaster|ovcgit") ]] && { echo "[Error] Some containesr not deleted"; exit 6; }
-    docker ps -a --format '{{.Names}}'| grep -Ev 'pxeboot|jumpscale' | xargs -n 1 docker rm
+    ${docpath} ps -a --format '{{.Names}}'| grep -Ev 'pxeboot|jumpscale' | xargs -n 1 docker rm -f
   else
     echo "[*] No ovc containers found, environment is clean :)"
   fi
@@ -189,7 +189,6 @@ function git_docker ()
 {
   [[ $(${docpath} ps --format "{{.Names}}" | grep "ovcgit") ]] && echo "[+] ovcgit docker is Running" || { echo "[-] ovcgit docker not running, some erorr happen"; exit 6; }
   git_ip=$(docker_ip ovcgit)
-  ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${git_ip}
   ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${git_ip}
   sleep 4
   echo "[*] Enter ovcgit docker ssh Password:"
@@ -223,8 +222,7 @@ function jumpscale_docker ()
     #ssh -A root@${js_ip} ${comm}
     #echo -e "Host 172.17.0.\n\tStrictHostKeyChecking no" > ~/.ssh/config
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${js_ip}
-    ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${js_ip}
-    ssh-copy-id root@"${js_ip}"
+    ssh-copy-id root@${js_ip}
     send_ssh_command "${js_ip}" "echo -e \"Host github.com\n\tStrictHostKeyChecking no\" > ~/.ssh/config"
     send_ssh_command "${js_ip}" "cd /tmp && { [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; }"
     send_ssh_command "${js_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
