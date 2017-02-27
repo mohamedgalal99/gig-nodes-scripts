@@ -66,9 +66,6 @@ export be-scale-3.ityoukey="zfRsyknC1K9esJ70QY3M6x9KT_USpI8rKkEJljDoyoGfxSRBeJdg
 
 #[[be-g8-3]]
 enviroment="be-g8-3"
-JS="7.1.7"
-AYS="7.1.7"
-OVC="2.1.7"
 ctrl_ip="10.107.2.1"
 gw="10.101.0.1"
 start_ip="10.101.0.10"
@@ -77,3 +74,15 @@ netmask="255.255.0.0"
 gid="107"
 pubvlan="101"
 ityoukey="tmbaIAx9ZzOeKPUUPSPw1DBikseQ7V7Z29nzDt__KC8NTz_Di-HL"
+
+# be-gen-1
+enviroment="be-gen-1"
+ctrl_ip="10.1.2.1"
+gw="194.158.23.67"
+start_ip="194.158.23.69"
+end="194.158.23.70"
+netmask="255.255.255.248"
+gid="120"
+pubvlan="2312"
+ityoukey="mXojKc0xDXBIibRxiQDNlhtomM8tTqtdMZOh-pPBGCKBwobGxbtI"
+
