@@ -15,8 +15,8 @@ pubvlan="101"
 ityoukey="liX186LBIQeUENGxF0Ur_hAPSq1-S1NgHfuIXyyZoSoVoJ25fXN7"
 
 [[ -f "/opt/g8-pxeboot/pxeboot/conf/hosts" ]] && echo "[*] Found hosts file" || { echo "[-] Can't find hosts file"; exit 1; }
-nodes=($(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev "^#|^$" | grep -E " cp[ua]-..$| stor-..$" | awk '{print $1}'))
-nodes_names=($(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev "^#|^$" | grep -E " cp[ua]-..$| stor-..$" | awk '{print $NF}'))  #get output as array
+nodes=($(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev "^#|^$" | grep -E " cp[ua]-.*$| stor-.*$" | awk '{print $1}'))
+nodes_names=($(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev "^#|^$" | grep -E " cp[ua]-.*$| stor-.*$" | awk '{print $NF}'))  #get output as array
 
 function check_docker ()
 {
