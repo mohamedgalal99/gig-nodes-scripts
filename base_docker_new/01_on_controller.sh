@@ -90,6 +90,7 @@ function docker_config ()
   containers=$(docker ps --format "{{.Names}}")
   echo "[+] Stopping Running dockers"
   echo ${containers} | xargs -n 1 docker stop
+  systemctl daemon-reload || { echo "[-] Can't reload systemctl daemon"; exit 1; }
   systemctl restart docker.socket || { echo "[-] Can't restart docker socket"; exit 1; }
   systemctl restart docker.service || { echo "[-] Can't restart docker service"; exit 1; }
   echo "[+] start stopped dockers"
