@@ -1,6 +1,6 @@
-export JS="7.1.6"
-export AYS="7.1.6"
-export OVC="2.1.6"
+export JS="7.1.7"
+export AYS="7.1.7"
+export OVC="2.1.7"
  
 export du-conv-3.enviroment="du-conv-3"
 export du-conv-3.ctrl_ip="192.168.27.0"
@@ -21,16 +21,17 @@ export du-conv-2.netmask="255.255.248.0"
 export du-conv-2.gid="777"
 export du-conv-2.pubvlan="2312"
 export du-conv-2.ityoukey="Z9Jcm4gDHEcIeKKBayluRTPzkt_yz8UmS3MzniypJw-R6C54noK2"
- 
-export be-g8-1.enviroment="be-g8-1"
-export be-g8-1.ctrl_ip="10.101.106.254"
-export be-g8-1.gw="10.101.0.1"
-export be-g8-1.start="10.101.106.10"
-export be-g8-1.end="10.101.106.200"
-export be-g8-1.netmask="255.255.0.0"
-export be-g8-1.gid="1002"
-export be-g8-1.pubvlan="101"
-export be-g8-1.ityoukey="liX186LBIQeUENGxF0Ur_hAPSq1-S1NgHfuIXyyZoSoVoJ25fXN7"
+
+# be-g8-1
+enviroment="be-g8-1"
+ctrl_ip="10.101.106.254"
+gw="10.101.0.1"
+start_ip="10.101.106.10"
+end="10.101.106.200"
+netmask="255.255.0.0"
+gid="1002"
+pubvlan="101"
+ityoukey="liX186LBIQeUENGxF0Ur_hAPSq1-S1NgHfuIXyyZoSoVoJ25fXN7"
 
 #[[be-g8-4]]
 export enviroment="be-g8-4"
