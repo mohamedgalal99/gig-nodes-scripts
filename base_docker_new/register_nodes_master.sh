@@ -50,7 +50,7 @@ cd "/opt/code/github/gig-projects/env_${enviroment}"
 [[ -f "/tmp/openvcloud/scripts/install/07-ovcgit-controllernode-setup.py" ]] || { echo "[-] Cant find 07-ovcgit-controllernode-setup.py"; exit 1; }
 
 #cd "/opt/code/github/gig-projects/env_${enviroment}"
-nodes=($(ls -1 services/jumpscale__location__${enviroment}/ | grep -E "cp[ua]-..\.du.conv-3|stor-..\.${enviroment}" | awk -F__ '{print $3}'))
+nodes=($(ls -1 services/jumpscale__location__${enviroment}/ | grep -E "cp[ua]-.*\.${enviroment}|stor-.*\.${enviroment}" | awk -F__ '{print $3}'))
 
 echo "[*] Detecting ${#nodes[@]} nodes:"
 for n in ${nodes[@]}
