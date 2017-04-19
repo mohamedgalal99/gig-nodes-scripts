@@ -14,6 +14,10 @@ for i in $(ovs-vsctl list-br | grep -E "^space_....")
 do
   if [[ ! ${used_network[@]} =~ ${i} ]]; then
     echo ${i}
-    #ovs-vsctl del-br ${i} && echo "[+] Bridge ${i} deleted" || echo "[-] Can't delete Bridge ${i}"
+    for port in $(ovs-vsctl list-ports ${i})
+    do
+      ovs-vsctl del-port ${i} ${port} && echo "[+] Port ${i} deleted" || echo "[-] Can't delete Port ${i}"
+    done
+    ovs-vsctl del-br ${i} && echo "[+] Bridge ${i} deleted" || echo "[-] Can't delete Bridge ${i}"
   fi
 done
