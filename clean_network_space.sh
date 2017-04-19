@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#############################
-# This SCript used to clean #
-# unused penVswitch bridges #
-#############################
+##############################
+# This SCript used to clean  #
+# unused openVswitch bridges #
+##############################
 
 export LC_ALL=${LANG}
 declare -a used_network
