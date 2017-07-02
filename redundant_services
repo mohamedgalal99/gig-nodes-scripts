@@ -1,0 +1,69 @@
+#!/bin/bash
+
+ctrl1_mgmt_ip="10.109.2.1"
+
+function check_docker
+{
+  [[ $# -ne 1 ]] && { echo "[-] Check docker function take one arg"; exit 1; }
+  doc_name=$1
+  if [[ $(docker ps -a --format '{{ .Names }}' | grep -E "^${doc_name} ") ]]
+  then
+    status=$(docker ps -a --format '{{ .Names }} {{ .Status }}' | grep -E "^${doc_name} " | awk '{print $2}')
+    #[[ ${status} == "Exited" ]] && { docker start ${doc_name} || { echo "[-] Can't start docker ${doc_name}"; exit 1; } }
+    if [[ ${status} == "Exited" ]]
+    then
+      docker start ${doc_name} || { echo "[-] Can't start docker ${doc_name}"; exit 1; }
+    elif [[ ${status} == "Up" ]]
+    then
+      echo "[+] Docker ${doc_name} allready running"
+    else
+      echo "[-] Docker ${doc_name} unknown"
+      exit 1
+    fi
+  else
+    echo "[-] Can't find thid docker: ${doc_name}"
+    exit 1
+  fi
+}
+function docker_ip ()
+{
+  doc_name=${1}
+  if [[ ${#@} -eq 1 ]]
+  then
+    doc_ip=$(docker inspect ${doc_name} | grep IPAdd | grep -v -E 'null,$|"",$' | awk -F: '{print $2}' | sed -E 's/"|\ |,//g' | uniq)
+    echo ${doc_ip}
+  else
+    echo "[Error] Function docker_ip get only 1 arg => docker name"
+    exit 1
+  fi
+}
+
+function send_ssh_command ()
+{
+  [[ ${#@} != 2 ]] && { echo "[-] send_ssh_command function take only two args"; exit 1; }
+  ip="${1}"
+  comma="${2}"
+  ssh -A -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" root@${ip} "${comma}"
+}
+function restart_jsagent
+{
+  hosts="/opt/g8-pxeboot/pxeboot/conf/hosts"
+  [[ -f "${hosts}" ]] || { echo "[-] Can't restart jsagent on node, ${hosts} file not found"; exit 1; }
+  for i in $(cat /opt/g8-pxeboot/pxeboot/conf/hosts  | grep -Ev '^$|^#|ipmi' | grep -E 'cpu-[0-9][0-9] |stor-[0-9][0-9]'| awk '{print $1}')
+  then
+    send_ssh_command "${i}" "ays restart -n jsagent"
+  done
+}
+
+ping -c2 -q ${ctrl1_mgmt_ip} &> /dev/null
+if [[ $? -ne 0 ]]; then
+  check_docker ovcmaster
+  check_docker ovcproxy
+  ovcmaster_ip=$(docker ovcmaster)
+  ovcproxy_ip=$(docker ovcproxy)
+  echo "** Connecting to ovcmaster ..."
+  send_ssh_command ${ovcmaster_ip} "ays start"
+  echo "** Connecting to ovcproxy ..."
+  send_ssh_command ${ovcproxy_ip} "ays start -n nginx"
+  restart_jsagent
+fi
