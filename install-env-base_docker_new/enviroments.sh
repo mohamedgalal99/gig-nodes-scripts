@@ -68,6 +68,15 @@ gid="102"
 pubvlan="101"
 ityoukey="zfRsyknC1K9esJ70QY3M6x9KT_USpI8rKkEJljDoyoGfxSRBeJdg"
 
+# be-scale-2
+enviroment="be-scale-2"
+ctrl_ip="10.101.105.254"
+gw="10.101.0.1"
+start_ip="10.101.105.100"
+end="10.101.105.200"
+netmask="255.255.0.0"
+pubvlan="101"
+
 #[[be-g8-3]]
 enviroment="be-g8-3"
 ctrl_ip="10.107.2.1"
