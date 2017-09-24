@@ -226,7 +226,7 @@ function jumpscale_docker ()
     ssh-copy-id root@${js_ip}
     send_ssh_command "${js_ip}" "echo -e \"Host github.com\n\tStrictHostKeyChecking no\" > ~/.ssh/config"
     send_ssh_command "${js_ip}" "cd /tmp && { [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; }"
-    send_ssh_command "${js_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
+    send_ssh_command "${js_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-nodes-scripts/master/install-env-base_docker_new/jumpscale_docker.sh"
     echo "[[ OoO ]] ${enviroment}"
     send_ssh_command "${js_ip}" "cd /tmp && /bin/bash jumpscale_docker.sh -j ${JS} -a ${AYS} -o ${OVC} -e ${enviroment} -c ${ctrl_ip} "
     sleep 8
