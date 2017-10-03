@@ -1,0 +1,6 @@
+
+ays install -n image_ubuntu-1604 -tn ${storname}
+ays install -n image_ubuntu-1404-x64 -tn ${storname}
+ays install -n image_redhat-7.2-x86_64 -tn ${storname}
+ays install -n image_debian_8.1 -tn ${storname}
+ays install -n image_windows2012r2_standard_new -tn ${storname}
