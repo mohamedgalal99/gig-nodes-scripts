@@ -1,4 +1,8 @@
 #!/bin/bash
+#title           :fix-vm-raw-disk.sh
+#description     :This script used to Fix VM boot raw disk
+#author		 :Mohamed Galal
+#git url         :https://raw.githubusercontent.com/mohamedgalal99/gig-nodes-scripts/master/fix-vm-raw-disk.sh 
 
 [[ $# != 1 ]] && { echo "[*] This function take vm name ex: vm-123"; exit 1; }
 vm="$1"
