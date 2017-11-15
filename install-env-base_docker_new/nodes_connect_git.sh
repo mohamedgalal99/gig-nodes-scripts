@@ -63,6 +63,7 @@ then
     git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
   fi
 else
+  cd /tmp
   git clone -b ${OVC} git@github.com:0-complexity/openvcloud.git
 fi
 
