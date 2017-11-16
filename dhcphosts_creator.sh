@@ -21,7 +21,6 @@ echo -e "\n# IPMI\n"
 ipmi_macs=($(cat "${file}" | awk '{print $3}'))
 for (( i = 0; i < ${#nodes[@]}; i++ ))
 do
-        echo "${ipmi_macs[${i}]},ipmi-${nodes[${i}]},infinite"
         if [[ "${ipmi_macs[${i}]}" != "00:00:00:00:00:00" ]]
         then
                 echo "${ipmi_macs[${i}]},ipmi-${nodes[${i}]},infinite"
