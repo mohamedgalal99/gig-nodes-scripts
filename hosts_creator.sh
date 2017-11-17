@@ -10,7 +10,6 @@ nodes=($(cat "${file}" | awk '{print $1}'))
 macs=($(cat "${file}" | awk '{print $2}'))
 stor_count=1
 
-echo ${#nodes[@]}
 for (( i = 0 ; i <= ${#nodes[@]}; i++ ))
 do
 	if [[ "${nodes[${i}]::-3}" == "cpu" ]]
