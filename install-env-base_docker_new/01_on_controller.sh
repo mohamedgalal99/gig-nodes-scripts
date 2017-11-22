@@ -2,9 +2,9 @@
 # Running on controller
 docpath=
 enviroment="be-g8-1"
-JS="7.1.6"
-AYS="7.1.6"
-OVC="2.1.6"
+JS="7.1.7"
+AYS="7.1.7"
+OVC="2.2.0"
 ctrl_ip="10.101.106.254"
 gw="10.101.0.1"
 start_ip="10.101.106.10"
