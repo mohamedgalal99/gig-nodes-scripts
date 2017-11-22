@@ -286,6 +286,11 @@ function nodes_to_git ()
 
 #[[ -d "/var/master_var" ]] && { echo "[+] Removing containt under /opt/master_var"; rm -rf /opt/master_var; }
 #echo "[*] Check Docker Installed"
+for i in {2..5}
+do
+    ssh-keygen -f "/root/.ssh/known_hosts" -R 172.17.0.${i} &> /dev/null
+done
+
 #check_docker
 con "check_docker" "[*] Check Docker Installed"
 
