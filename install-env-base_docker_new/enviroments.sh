@@ -166,10 +166,11 @@ pubvlan="2312"
 ityoukey="gBR1AsXPdh58so_5t18on0VnbORijRXjaDBSlnzyMbl1Xm59roCo"
 
 #CH
+# 69 and 70 for redundant controller
 enviroment="ch-gen-1"
 ctrl_ip="185.15.201.68"
 gw="185.15.201.65"
-start_ip="185.15.201.70"
+start_ip="185.15.201.71"
 end="185.15.201.126"
 netmask="255.255.255.192"
 gid="222"
