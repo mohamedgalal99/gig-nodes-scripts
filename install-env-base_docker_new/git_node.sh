@@ -75,7 +75,7 @@ done
 #Jumpscale container
 #[[ ${JS} =~ [1-9]\.[1-9]\.[1-9] || ${JS} =~ [1-9]\.[1-9] || ${JS} = 'master' ]] || { "[-] Unknown JS branch"; exit 1; }
 #[[ ${AYS} =~ [1-9]\.[1-9]\.[1-9] || ${AYS} =~ [1-9]\.[1-9] || ${AYS} = 'master' ]] || { "[-] Unknown AYS branch"; exit 1; }
-[[ ${OVC} =~ [1-9]\.[1-9]\.[1-9] || ${OVC} =~ [1-9]\.[1-9] || ${OVC} = 'master' ]] || { "[-] Unknown OVC branch"; exit 1; }
+[[ ${OVC} =~ [1-9]\.[1-9]\.[1-9] || ${OVC} =~ [1-9]\.[1-9] || ${OVC} = 'master' || ${OVC} = 'production' ]] || { "[-] Unknown OVC branch"; exit 1; }
 [[ $(ssh-add -l) ]] && echo "[+] ssh key loaded" || { echo "[-] SSH key not found"; exit 1; }
 
 if [[ -d "/tmp/openvcloud" ]]
