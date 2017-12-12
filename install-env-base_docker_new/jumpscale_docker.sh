@@ -51,9 +51,9 @@ while [[ true ]]; do
   esac
 done
 #Jumpscale container
-[[ ${JS} =~ [1-9]\.[1-9]\.[1-9] || ${JS} =~ [1-9]\.[1-9] || ${JS} = 'master' ]] || ${JS} = 'production' || { "[-] Unknown JS branch"; exit 1; }
-[[ ${AYS} =~ [1-9]\.[1-9]\.[1-9] || ${AYS} =~ [1-9]\.[1-9] || ${AYS} = 'master' ]] || ${AYS} = 'production' ]] || { "[-] Unknown AYS branch"; exit 1; }
-[[ ${OVC} =~ [1-9]\.[1-9]\.[1-9] || ${OVC} =~ [1-9]\.[1-9] || ${OVC} = 'master' ]] || ${OVC} = 'production' ]] || { "[-] Unknown OVC branch"; exit 1; }
+[[ ${JS} =~ [1-9]\.[1-9]\.[1-9] || ${JS} =~ [1-9]\.[1-9] || ${JS} = 'master' || ${JS} = 'production' ]] || { "[-] Unknown JS branch"; exit 1; }
+[[ ${AYS} =~ [1-9]\.[1-9]\.[1-9] || ${AYS} =~ [1-9]\.[1-9] || ${AYS} = 'master' || ${AYS} = 'production' ]] || { "[-] Unknown AYS branch"; exit 1; }
+[[ ${OVC} =~ [1-9]\.[1-9]\.[1-9] || ${OVC} =~ [1-9]\.[1-9] || ${OVC} = 'master' || ${OVC} = 'production' ]] || { "[-] Unknown OVC branch"; exit 1; }
 [[ $(ssh-add -l) ]] && echo "[+] ssh key loaded" || { echo "[-] SSH key not found"; exit 1; }
 [[ -d /opt ]] && rm -rf /opt/* || { echo "[-] /opt not found"; mkdir -v /opt; chmod 755 /opt; }
 [[ -d /opt ]] && echo "[+] found dir /opt" || { echo "[-] can't create /opt"; exit 1; }
