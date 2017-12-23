@@ -219,13 +219,13 @@ function jumpscale_docker ()
     js_ip=$(docker_ip jumpscale)
     echo ${js_ip}
     echo '[+] Enter Password for Jumpscale container'
-    comm="echo 'nameserver 8.8.8.8 ' >> /etc/resolv.conf"
     comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh;ls && sleep 3; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
     #ssh -A root@${js_ip} ${comm}
     #echo -e "Host 172.17.0.\n\tStrictHostKeyChecking no" > ~/.ssh/config
     ssh-keygen -f "$HOME/.ssh/known_hosts" -R ${js_ip}
     ssh-copy-id root@${js_ip}
     send_ssh_command "${js_ip}" "echo -e \"Host github.com\n\tStrictHostKeyChecking no\" > ~/.ssh/config"
+    send_ssh_command "${js_ip}" "echo 'nameserver 8.8.8.8 ' >> /etc/resolv.conf"
     send_ssh_command "${js_ip}" "cd /tmp && { [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh; }"
     send_ssh_command "${js_ip}" "cd /tmp && wget https://raw.githubusercontent.com/mohamedgalal99/gig-nodes-scripts/master/install-env-base_docker_new/jumpscale_docker.sh"
     echo "[[ OoO ]] ${enviroment}"
