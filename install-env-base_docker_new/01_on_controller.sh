@@ -219,6 +219,7 @@ function jumpscale_docker ()
     js_ip=$(docker_ip jumpscale)
     echo ${js_ip}
     echo '[+] Enter Password for Jumpscale container'
+    comm="echo 'nameserver 8.8.8.8 ' >> /etc/resolv.conf"
     comm="cd /tmp; [[ -f 'jumpscale_docker.sh' ]] && rm jumpscale_docker.sh;ls && sleep 3; wget https://raw.githubusercontent.com/mohamedgalal99/gig-reinstall-nodes/master/base_docker_new/jumpscale_docker.sh"
     #ssh -A root@${js_ip} ${comm}
     #echo -e "Host 172.17.0.\n\tStrictHostKeyChecking no" > ~/.ssh/config
