@@ -16,7 +16,7 @@ while [[ true ]]; do
     shift 2
       ;;
     -pvlan | --puplicVLan )
-    OVC=$2
+    pubvlan=$2
     shift 2
       ;;
     -e | --enviroment)
@@ -72,10 +72,14 @@ done
 for n in ${nodes[@]}
 do
   if [[ ${option} == 1 ]]; then
-    if [[ ${n::3} =~ cp[ua] ]]; then
+    echo ${n} | grep "cpu" &> /dev/null
+    if [[ $? == 0 ]]; then
       echo "[*] Connecting ${n}"
       jspython /tmp/openvcloud/scripts/install/07-ovcgit-cpunode-setup.py -n ${n} -v ${pubvlan} -g ${gridID} || echo "[-] Error in connect ${n} to master"
-    elif [[ ${n::4} == stor ]]; then
+      continue
+    fi
+    echo ${n} | grep "stor" &> /dev/null
+    if [[ $? == 0 ]]; then
       echo "[*] Connecting ${n}"
       jspython /tmp/openvcloud/scripts/install/07-ovcgit-storagenode-setup.py -n ${n} -g ${gridID} -t storagenode,storagedriver ||  echo "[-] Error in connect ${n} to master"
     else
@@ -84,21 +88,24 @@ do
   elif [[ ${option} == 2 ]]; then
     #echo "[*] will do this option later"
     answer=
-    while [[ ${answer} != 1 ]] && [[ ${answer} != 2 ]]
+    while [[ ${answer} != 1 ]] && [[ ${answer} != 2 ]] && [[ ${answer} != 3 ]]
     do
-      echo -en "\n[*] IS this node ${n} is:\n\t1: Compute node\n\t2: Stor node\nYour chooise (1) or (2): "
+      echo -en "\n[*] IS this node ${n} is:\n\t1: Compute node\n\t2: Stor node\n\t3: Skip node\nYour chooise (1) , (2) or (3): "
       read answer
     done
     if [[ ${answer} == 1 ]]
     then
       echo -e "[+] Install this node ${n} as Compute node\n"
       echo "[*] Connecting ${n}"
+      echo ${pubvlan}
       jspython /tmp/openvcloud/scripts/install/07-ovcgit-cpunode-setup.py -n ${n} -v ${pubvlan} -g ${gridID} || echo "[-] Error in connect ${n} to master"
     elif [[ ${answer} == 2 ]]
     then
       echo -e "[+] Install this node ${n} as Storge node\n"
       echo "[*] Connecting ${n}"
       jspython /tmp/openvcloud/scripts/install/07-ovcgit-storagenode-setup.py -n ${n} -g ${gridID} -t storagenode,storagedriver || echo "[-] Error in connect ${n} to master"
+    else
+      echo "[*] Skip install node ${n}"
     fi
   fi
 done
