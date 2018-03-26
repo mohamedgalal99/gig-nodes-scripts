@@ -1,0 +1,10 @@
+# To install syncthing server between multi nodes from terminal on ubuntu follow this steps:
+
+    - curl -s https://syncthing.net/release-key.txt | sudo apt-key add -
+    - echo "deb https://apt.syncthing.net/ syncthing stable" | sudo tee /etc/apt/sources.list.d/syncthing.list
+    - apt-get update
+    - apt-get install syncthing
+
+ - run server for first time to generate cert and machine id ( don't know yet how to generate them by myself :/ )
+ - stop servers and change configuration in ~/.config/syncthing/config.xml in ur servers as show in files 
+ - run it agian and check it files are syncing or not ( have fun :D )
