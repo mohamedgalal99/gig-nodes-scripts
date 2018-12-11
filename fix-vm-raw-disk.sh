@@ -16,7 +16,7 @@ echo "[*] will use ${loop}"
 losetup -P ${loop} bootdisk-${vm}.raw  #mount disk in loop with its pations
 fdisk -l ${loop} | grep "Linux filesystem"
 if [[ $? == 0 ]]; then
-	device=$(fdisk -l /dev/loop0 | grep "Linux filesystem" | awk '{print $1}')
+	device=$(fdisk -l /dev/loop0 | grep "Linux" | awk '{print $1}')
 	echo "[+] Start check on device ${device}"
 	fsck -y ${device}
 	echo "[+] Removing loop device"
