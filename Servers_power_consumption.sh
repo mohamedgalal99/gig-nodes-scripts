@@ -22,24 +22,6 @@ function valid_ip()
 }
 
 
-
-function valid_ip()
-{
-    local  ip=$1
-    local  stat=1
-
-    if [[ "${ip}" =~ [0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} ]]
-    then
-        OIFS=$IFS
-        IFS='.'
-        ip=($ip)
-        IFS=$OIFS
-        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 && ${ip[2]} -le 255 && ${ip[3]} -le 255 ]] && stat=0
-    fi
-    return $stat
-}
-
-
 [[ -f "servers" ]] || { echo "[-] Can't find servers file"; exit 1; }
 [[ -f "server_power.log" ]] || touch server_power.log
 for i in $(cat servers)
