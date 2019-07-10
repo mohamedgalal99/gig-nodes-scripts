@@ -25,7 +25,7 @@ function valid_ip()
 [[ -f "servers" ]] || { echo "[-] Can't find servers file"; exit 1; }
 [[ -f "server_power.log" ]] || touch server_power.log
 total=$(cat servers | wc -l)
-prgress=1
+progress=1
 for i in $(cat servers)
 do
     server_ip="$(echo "${i}" | awk -F',' '{print $1}')"
