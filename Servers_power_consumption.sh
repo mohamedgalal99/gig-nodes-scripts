@@ -24,6 +24,8 @@ function valid_ip()
 
 [[ -f "servers" ]] || { echo "[-] Can't find servers file"; exit 1; }
 [[ -f "server_power.log" ]] || touch server_power.log
+total=$(cat servers | wc -l)
+prgress=1
 for i in $(cat servers)
 do
     server_ip="$(echo "${i}" | awk -F',' '{print $1}')"
@@ -33,7 +35,8 @@ do
     x=$?
     [[ $x != 0 ]] && { echo "[-] server ip is wronge formated: ${server_ip}"; continue; }
 
-    echo "[*] Server ${server_ip}" | tee -a server_power.log
+    echo "[${progress}/${total}] Server ${server_ip}" | tee -a server_power.log
     echo -ne "\t"
     echo $(ipmitool -I lanplus -H "${server_ip}" -U "${server_user}" -P ${server_password} sensor get Power1 Power2 | grep 'Sensor Reading' || echo "[-] Can't connect to Server ${server_ip}") | tee -a server_power.log
+    progress=$((( ${progress} + 1 )))
 done
