@@ -1,0 +1,19 @@
+#!/bin/bash
+# Title          : List Directory
+# Description    : List dir content based on files and directories size
+# Author         : Mohamed Galal
+# Example        :# bash sdu.sh
+
+
+ls_dir=($(for i in $(ls -1); do du -sh ${i}; done | sort -r -h))
+
+
+for (( i = 0; i < ${#ls_dir[@]}; i += 2 ))
+do
+        if [[ -d "${ls_dir[${i}+1]}" ]]
+        then
+                echo -e "${ls_dir[${i}]} \t ${ls_dir[${i}+1]}/"
+        else
+                echo -e "${ls_dir[${i}]} \t ${ls_dir[${i}+1]}"
+        fi
+done
